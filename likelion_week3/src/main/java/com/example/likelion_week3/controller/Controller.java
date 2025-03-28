@@ -32,10 +32,9 @@ public class Controller {
     }
 
     @GetMapping("/mypage")
-    public ResponseEntity<?> getMyPage(@RequestBody String name, String phone, String birth, String id, String pw) {
-        User user = new User(name, phone, birth, id, pw);
-        if(users.contains(user))
-            return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.MyPage.of(user));
+    public ResponseEntity<?> getMyPage(@RequestBody RequestDTO.Register register) {
+        if(users.contains(register.toEntity()))
+            return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.MyPage.of(register.toEntity()));
         else
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO.Message("실패"));
     }

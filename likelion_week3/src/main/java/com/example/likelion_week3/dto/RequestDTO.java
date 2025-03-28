@@ -1,6 +1,7 @@
 package com.example.likelion_week3.dto;
 
 import com.example.likelion_week3.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,5 +38,13 @@ public class RequestDTO {
             this.oldPw = oldPw;
             this.newPw = newPw;
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class MyPage {
+        private String name;
+        private String id;
+        private String birth;
     }
 }
