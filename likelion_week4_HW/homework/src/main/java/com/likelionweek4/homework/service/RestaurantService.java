@@ -34,12 +34,6 @@ public class RestaurantService {
     }
 
     public List<Restaurant> searchByCondition(RestaurantRequestDTO.SearchRestaurantConditionInfo requestDTO) {
-        log.info("Search restaurant by condition");
-        log.info("Search restaurant by condition: {}", requestDTO);
-        log.info("Search restaurant by condition: {}", requestDTO.getName());
-        log.info("Search restaurant by condition: {}", requestDTO.getDistance());
-        log.info("Search restaurant by condition: {}", requestDTO.getCategory());
-        log.info("Search restaurant by condition: {}", requestDTO.getCategoryGroup());
         if (requestDTO.getName() != null) {
             return restaurantRepository.findByNameContainingIgnoreCase(requestDTO.getName());
         }
