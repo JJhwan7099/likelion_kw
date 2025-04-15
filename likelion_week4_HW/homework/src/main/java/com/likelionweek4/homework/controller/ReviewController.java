@@ -15,34 +15,32 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/{restaurantId}")
+    @PostMapping
     public ResponseEntity<ReviewResponseDTO.ReviewInfo> createReview(
-            @PathVariable Long restaurantId,
             @RequestBody ReviewRequestDTO.CreateReviewInfo requestDTO) {
-        requestDTO.setRestaurantId(restaurantId);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ReviewResponseDTO.ReviewInfo(reviewService.create(requestDTO)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.create(requestDTO));
     }
 
-    @GetMapping("/{restaurantId}")
+    @GetMapping("/{placeId}")
     public ResponseEntity<ReviewResponseDTO.SearchReviewsResult> searchReviews(
-            @PathVariable Long restaurantId ) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(new ReviewResponseDTO.SearchReviewsResult(reviewService.searchReviewByRestaurantId(new ReviewRequestDTO.SearchReviewsInfo(restaurantId))));
+            @PathVariable Long placeId,
+            @ModelAttribute ReviewRequestDTO.SearchReviewsInfo requestDTO) {
+        requestDTO.setPlaceId(placeId);
+        return ResponseEntity.status(HttpStatus.OK).body(reviewService.searchReviewByPlaceId(requestDTO));
     }
 
-    @PutMapping("/{restaurantId}/{reviewId}")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<ReviewResponseDTO.ReviewInfo> updateReview(
             @PathVariable Long reviewId,
             @RequestBody ReviewRequestDTO.UpdateReviewInfo requestDTO) {
         requestDTO.setReviewId(reviewId);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ReviewResponseDTO.ReviewInfo(reviewService.update(requestDTO)));
+        return ResponseEntity.status(HttpStatus.OK).body(reviewService.update(requestDTO));
     }
 
-    @DeleteMapping("/{restaurantId}/{reviewId}")
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<MessageResponseDTO.Message> deleteReview(
             @PathVariable Long reviewId) {
-        reviewService.deleteReview(new ReviewRequestDTO.DeleteReviewInfo(reviewId));
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new MessageResponseDTO.Message("삭제가 완료되었습니다."));
+        return ResponseEntity.status(HttpStatus.OK).body(reviewService.deleteReview(new ReviewRequestDTO.DeleteReviewInfo(reviewId)));
     }
 
 }

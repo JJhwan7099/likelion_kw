@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Place Search</title>
+</head>
+<body>
+<h1>장소 검색</h1>
+
+<!-- 검색 조건 입력 -->
+<form id="search-form">
+    <input type="text" id="name" placeholder="이름">
+    <input type="text" id="category" placeholder="카테고리">
+    <input type="text" id="categoryGroup" placeholder="카테고리 그룹">
+    <select id="isRatingASC">
+        <option value="">평점 정렬</option>
+        <option value="true">오름차순</option>
+        <option value="false">내림차순</option>
+    </select>
+    <select id="isDistanceASC">
+        <option value="">거리 정렬</option>
+        <option value="true">오름차순</option>
+        <option value="false">내림차순</option>
+    </select>
+    <button type="submit">검색</button>
+</form>
+
+<!-- 결과 테이블 -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>이름</th>
+        <th>주소</th>
+        <th>전화번호</th>
+        <th>거리</th>
+        <th>카테고리 그룹</th>
+        <th>카테고리</th>
+        <th>평점</th>
+    </tr>
+    </thead>
+    <tbody id="result-table-body">
+    </tbody>
+</table>
+
+<!-- 페이지네이션 -->
+<div>
+    <button id="prev-page" onclick="goToPage(currentPage - 1)">이전</button>
+    <span id="page-info">페이지 1</span>
+    <button id="next-page" onclick="goToPage(currentPage + 1)">다음</button>
+</div>
+
+<script>
+    let currentPage = 0;
+    const pageSize = 5;
+    let latestPaging = null; // 최신 페이징 정보 저장
+
+    document.getElementById("search-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        currentPage = 0;
+        fetchData(currentPage);
+    });
+
+    function fetchData(page) {
+        const params = new URLSearchParams();
+        params.append("page", page+1);
+        params.append("size", pageSize);
+
+        const name = document.getElementById('name').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const categoryGroup = document.getElementById('categoryGroup').value.trim();
+        const isRatingASC = document.getElementById('isRatingASC').value;
+        const isDistanceASC = document.getElementById('isDistanceASC').value;
+
+        if (name !== "") params.append("name", name);
+        if (category !== "") params.append("category", category);
+        if (categoryGroup !== "") params.append("categoryGroup", categoryGroup);
+        if (isRatingASC !== "") params.append("isRatingASC", isRatingASC);
+        if (isDistanceASC !== "") params.append("isDistanceASC", isDistanceASC);
+
+        fetch(`/places?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                latestPaging = data.placeInfosPaging;
+                displayData(data.placeInfosList);
+                updatePageInfo(latestPaging);
+            })
+            .catch(error => console.error('데이터를 가져오는 중 오류 발생:', error));
+    }
+
+
+    function displayData(dataList) {
+        const tableBody = document.getElementById('result-table-body');
+        tableBody.innerHTML = '';
+
+        dataList.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.address}</td>
+                <td>${item.phone}</td>
+                <td>${item.distance}m</td>
+                <td>${item.categoryGroup}</td>
+                <td>${item.category}</td>
+                <td>${item.rating}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function updatePageInfo(data) {
+        const pageInfo = document.getElementById('page-info');
+        pageInfo.innerText = `페이지 ${data.placeInfosPaging.number + 1} / ${data.placeInfosPaging.totalPages}`;
+
+        // 버튼 비활성화 처리
+        document.getElementById('prev-page').disabled = data.placeInfosPaging.first;
+        document.getElementById('next-page').disabled = data.placeInfosPaging.last;
+    }
+
+
+    function goToPage(page) {
+        if (latestPaging === null) return;
+        if (page < 0 || page >= latestPaging.totalPages) return;
+        currentPage = page;
+        fetchData(currentPage);
+    }
+
+    // 첫 페이지 로딩
+    fetchData(currentPage);
+</script>
+</body>
+</html>

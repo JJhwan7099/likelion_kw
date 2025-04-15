@@ -1,7 +1,7 @@
 package com.likelionweek4.homework.utils.exportexcel;
 
-import com.likelionweek4.homework.entity.Restaurant;
-import com.likelionweek4.homework.repository.RestaurantRepository;
+import com.likelionweek4.homework.entity.Place;
+import com.likelionweek4.homework.repository.place.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.core.io.ClassPathResource;
@@ -13,7 +13,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ExcelExporter {
 
-    private final RestaurantRepository restaurantRepository;
+    private final PlaceRepository placeRepository;
 
     public void importFromClasspath() throws IOException {
         ClassPathResource resource = new ClassPathResource("excel/location.xlsx");
@@ -24,6 +24,7 @@ public class ExcelExporter {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
+                String phone = getCellValue(row.getCell(5));
                 String address = getCellValue(row.getCell(8));
                 String categoryGroup = getCellValue(row.getCell(2));
                 String[] categoryParts = getCellValue(row.getCell(3)).split(">");
@@ -35,11 +36,11 @@ public class ExcelExporter {
                 System.out.println("이름: " + name); // 이때 이미 깨지면 Excel 파싱 문제
 
 
-                Restaurant restaurant = new Restaurant(
-                        name, address, distance, latitude, longitude, categoryGroup, category
+                Place place = new Place(
+                        name, address, phone, distance, latitude, longitude, categoryGroup, category
                 );
 
-                restaurantRepository.save(restaurant);
+                placeRepository.save(place);
             }
         }
     }
